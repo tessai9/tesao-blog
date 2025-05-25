@@ -15,5 +15,6 @@ fi
 # Create lib directory if it doesn't exist
 mkdir -p scripts/lib
 
-# Copy the generated JavaScript file to the lib directory
+# Copy the generated js file and wasm file to the lib directory
 cp markdown-parser/pkg/markdown_parser.js scripts/lib/
+cp markdown-parser/pkg/markdown_parser_bg.wasm scripts/lib/

@@ -1,8 +1,19 @@
+import init, { markdown_to_html } from '../lib/markdown_parser.js';
+
+let wasmInitialized = false;
+async function initializeWasm() {
+    if (!wasmInitialized) {
+        await init();
+        wasmInitialized = true;
+    }
+}
+
 class ArticleComponent extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
         this._src = null;
+        initializeWasm().catch(err => console.error("Failed to initialize Wasm module for ArticleComponent:", err));
     }
 
     static get observedAttributes() {
@@ -42,23 +53,32 @@ class ArticleComponent extends HTMLElement {
         }
 
         const markdownContent = await this._fetchMarkdown(this._src);
-        // For now, just display the raw markdown.
-        // Later, we'll integrate the markdown-to-HTML conversion.
+        
+        if (!wasmInitialized) {
+            await initializeWasm();
+        }
+
+        let htmlContent;
+        try {
+            htmlContent = markdown_to_html(markdownContent);
+        } catch (error) {
+            console.error('Error converting markdown to HTML:', error);
+            htmlContent = '<p>Error converting markdown to HTML.</p>';
+        }
+
         this.shadowRoot.innerHTML = `
             <style>
                 :host {
                     display: block;
                     padding: 1em;
-                    border: 1px solid #ccc;
+                    /* Consider removing default border if not desired for final look */
+                    /* border: 1px solid #ccc; */ 
                     margin-bottom: 1em;
                 }
-                pre {
-                    white-space: pre-wrap;
-                    word-wrap: break-word;
-                }
+                /* Add any specific styling for rendered HTML if needed */
             </style>
             <div>
-                <pre>${markdownContent}</pre>
+                ${htmlContent}
             </div>
         `;
     }
