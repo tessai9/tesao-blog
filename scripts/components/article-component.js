@@ -12,47 +12,49 @@ class ArticleComponent extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
-        this._src = null;
+        this._articlePath = null;
         initializeWasm().catch(err => console.error("Failed to initialize Wasm module for ArticleComponent:", err));
     }
 
-    static get observedAttributes() {
-        return ['src'];
-    }
-
-    attributeChangedCallback(name, oldValue, newValue) {
-        if (name === 'src' && oldValue !== newValue) {
-            this._src = newValue;
-            this._render();
-        }
-    }
-
     connectedCallback() {
-        if (this._src) {
+      // URL paramsから記事のファイル名を取得
+        const urlParams = new URLSearchParams(window.location.search);
+        const articlePath = urlParams.get('article');
+        if (articlePath) {
+            this._articlePath = articlePath;
             this._render();
+        } else {
+            this.shadowRoot.innerHTML = '<p>記事が選択されていません。</p>';
         }
     }
 
-    async _fetchMarkdown(url) {
+    async _fetchMarkdown() {
+        if (!this._articlePath) {
+            return '記事のパスが指定されていません。';
+        }
+
         try {
-            const response = await fetch(url);
+            const response = await fetch(`/articles/${this._articlePath}`);
             if (!response.ok) {
+                if (response.status === 404) {
+                    return '指定された記事が見つかりません。';
+                }
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             return await response.text();
         } catch (error) {
-            console.error('Error fetching markdown:', error);
-            return 'Error loading article.';
+            console.error('error:', error);
+            return '記事の読み込みに失敗しました。';
         }
     }
 
     async _render() {
-        if (!this._src) {
-            this.shadowRoot.innerHTML = '<p>No article source specified.</p>';
+        if (!this._articlePath) {
+            this.shadowRoot.innerHTML = '<p>記事が選択されていません。</p>';
             return;
         }
 
-        const markdownContent = await this._fetchMarkdown(this._src);
+        const markdownContent = await this._fetchMarkdown();
         
         if (!wasmInitialized) {
             await initializeWasm();
@@ -62,24 +64,60 @@ class ArticleComponent extends HTMLElement {
         try {
             htmlContent = markdown_to_html(markdownContent);
         } catch (error) {
-            console.error('Error converting markdown to HTML:', error);
-            htmlContent = '<p>Error converting markdown to HTML.</p>';
+            console.error('Markdownの変換に失敗しました:', error);
+            htmlContent = '<p>記事の表示に失敗しました。</p>';
         }
 
         this.shadowRoot.innerHTML = `
             <style>
                 :host {
                     display: block;
-                    padding: 1em;
-                    /* Consider removing default border if not desired for final look */
-                    /* border: 1px solid #ccc; */ 
-                    margin-bottom: 1em;
+                    max-width: 800px;
+                    margin: 2rem auto;
+                    padding: 0 1rem;
                 }
-                /* Add any specific styling for rendered HTML if needed */
+                article {
+                    background-color: #fff;
+                    padding: 2rem;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                }
+                h1 {
+                    margin-top: 0;
+                    color: #333;
+                    font-size: 2rem;
+                }
+                p {
+                    line-height: 1.6;
+                    color: #444;
+                }
+                pre {
+                    background-color: #f8f9fa;
+                    padding: 1rem;
+                    border-radius: 4px;
+                    overflow-x: auto;
+                }
+                code {
+                    font-family: 'Consolas', 'Monaco', monospace;
+                    background-color: #f8f9fa;
+                    padding: 0.2em 0.4em;
+                    border-radius: 3px;
+                }
+                img {
+                    max-width: 100%;
+                    height: auto;
+                    border-radius: 4px;
+                }
+                blockquote {
+                    border-left: 4px solid #ddd;
+                    margin: 0;
+                    padding-left: 1rem;
+                    color: #666;
+                }
             </style>
-            <div>
+            <article>
                 ${htmlContent}
-            </div>
+            </article>
         `;
     }
 }
