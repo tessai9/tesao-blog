@@ -1,12 +1,4 @@
-import init, { markdown_to_html } from '../lib/markdown_parser.js';
-
-let wasmInitialized = false;
-async function initializeWasm() {
-    if (!wasmInitialized) {
-        await init();
-        wasmInitialized = true;
-    }
-}
+import { markdown_to_html } from '../lib/markdown_parser.js';
 
 class ArticleComponent extends HTMLElement {
     constructor() {
@@ -18,21 +10,17 @@ class ArticleComponent extends HTMLElement {
 
     connectedCallback() {
       // URL paramsから記事のファイル名を取得
-        const urlParams = new URLSearchParams(window.location.search);
-        const articlePath = urlParams.get('article');
-        if (articlePath) {
-            this._articlePath = articlePath;
-            this._render();
-        } else {
-            this.shadowRoot.innerHTML = '<p>記事が選択されていません。</p>';
-        }
+      const urlParams = new URLSearchParams(window.location.search);
+      const articlePath = urlParams.get('article');
+      if (articlePath) {
+          this._articlePath = articlePath;
+          this._render();
+      } else {
+          this.shadowRoot.innerHTML = '<p>記事が選択されていません。</p>';
+      }
     }
 
     async _fetchMarkdown() {
-        if (!this._articlePath) {
-            return '記事のパスが指定されていません。';
-        }
-
         try {
             const response = await fetch(`/articles/${this._articlePath}`);
             if (!response.ok) {
@@ -64,7 +52,7 @@ class ArticleComponent extends HTMLElement {
         try {
             htmlContent = markdown_to_html(markdownContent);
         } catch (error) {
-            console.error('Markdownの変換に失敗しました:', error);
+            console.error('failed to convert markdown', error);
             htmlContent = '<p>記事の表示に失敗しました。</p>';
         }
 

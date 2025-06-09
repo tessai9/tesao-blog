@@ -8,6 +8,14 @@
 <body>
     <article-component></article-component>
 
+    <script type="module">
+      import init from './scripts/lib/markdown_parser.js';
+
+      window.addEventListener('DOMContentLoaded', async () => {
+        await init();
+        console.info('Markdown parser initialized');
+      });
+    </script>
     <script type="module" src="scripts/components/article-component.js"></script>
 </body>
 </html>
