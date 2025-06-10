@@ -13,8 +13,8 @@ fi
 (cd markdown-parser && wasm-pack build --target web)
 
 # Create lib directory if it doesn't exist
-mkdir -p web/scripts/lib
+mkdir -p scripts/lib
 
 # Copy the generated js file and wasm file to the lib directory
-cp markdown-parser/pkg/markdown_parser.js web/scripts/lib/
-cp markdown-parser/pkg/markdown_parser_bg.wasm web/scripts/lib/
+cp markdown-parser/pkg/markdown_parser.js scripts/lib/
+cp markdown-parser/pkg/markdown_parser_bg.wasm scripts/lib/
