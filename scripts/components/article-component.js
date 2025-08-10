@@ -103,14 +103,11 @@ class ArticleComponent extends HTMLElement {
                     padding-left: 1rem;
                     color: #666;
                 }
-                .page-back-link {
-                    margin-top: 1rem;
-                }
             </style>
             <article>
                 ${htmlContent}
             </article>
-            <a class="page-back-link" href="/index.html">記事一覧に戻る</a>
+            <a href="/">記事一覧に戻る</a>
         `;
     }
 }
