@@ -27,3 +27,72 @@ Threadの作成方法はいくつか想定しており、
 
 フロントエンドはVanilla JavaScriptで実装する
 markdownへの変換は別途Rustで実装してwasmにコンパイルしたものを使用する
+
+### データ構造と関連付け
+
+ArticleとThreadの関連付けは、ArticleのMarkdownファイルにメタデータを記述する方法で行う。
+
+#### ディレクトリ構成
+
+```
+.
+├── articles/
+│   └── 2025-07-20-my-first-post.md
+├── threads/
+│   └── thread-a8b4c1.json
+│   └── thread-d9e7f2.json
+├── design.md
+├── index.html
+└── scripts/
+    └── ...
+```
+
+- `articles/`: ArticleのMarkdownファイルを格納する。
+- `threads/`: ThreadのJSONファイルを格納する。
+
+#### ArticleのMarkdownファイル
+
+ファイルの先頭に`---`で囲んだYAML形式のフロントマターを記述し、関連するThreadのIDを管理する。
+
+**例: `articles/2025-07-20-my-first-post.md`**
+'''markdown
+---
+title: "初めての投稿"
+date: "2025-07-20"
+threads:
+  - "thread-a8b4c1"
+  - "thread-d9e7f2"
+---
+
+# これはArticleの本文です
+
+日々の学習について記録します。
+...
+'''
+
+#### ThreadのJSONファイル
+
+各Threadは個別のJSONファイルとして管理し、ユニークなIDを持つ。
+
+**例: `threads/thread-a8b4c1.json`**
+'''json
+{
+  "id": "thread-a8b4c1",
+  "posts": [
+    {
+      "post_id": "post-001",
+      "author": "sumiyoshi",
+      "content": "この記事から派生したThreadの最初の投稿です。",
+      "timestamp": "2025-07-20T10:00:00Z"
+    },
+    {
+      "post_id": "post-002",
+      "author": "sumiyoshi",
+      "content": "これは2つ目の返信です。",
+      "timestamp": "2025-07-20T10:05:00Z"
+    }
+  ]
+}
+'''
+
+`posts`配列の最初の要素が、Articleページに表示されるプレビュー対象となる。
