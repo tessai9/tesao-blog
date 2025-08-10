@@ -23,7 +23,7 @@ class HeaderComponent extends HTMLElement {
         }
       </style>
       <header>
-        <div class="title">Tesao blog</div>
+        <div class="title">てさお.log</div>
       </header>
     `;
   }
