@@ -5,7 +5,6 @@ class ArticleComponent extends HTMLElement {
         super();
         this.attachShadow({ mode: 'open' });
         this._articlePath = null;
-        initializeWasm().catch(err => console.error("Failed to initialize Wasm module for ArticleComponent:", err));
     }
 
     connectedCallback() {
@@ -43,10 +42,6 @@ class ArticleComponent extends HTMLElement {
         }
 
         const markdownContent = await this._fetchMarkdown();
-        
-        if (!wasmInitialized) {
-            await initializeWasm();
-        }
 
         let htmlContent;
         try {
