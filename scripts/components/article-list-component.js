@@ -1,5 +1,3 @@
-import { formatToDateString } from "../utils/date.js";
-
 class ArticleListComponent extends HTMLElement {
     constructor() {
         super();
@@ -8,38 +6,17 @@ class ArticleListComponent extends HTMLElement {
 
     async connectedCallback() {
         try {
-            const response = await fetch('/articles');
-            const text = await response.text();
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(text, 'text/html');
-            
-            // ディレクトリ内のファイル一覧を取得
-            const files = Array.from(doc.querySelectorAll('a'))
-                .map(a => a.href)
-                .filter(href => href.endsWith('.md')) // .mdファイルのみを対象
-                .map(href => {
-                    const fileName = href.split('/').pop();
-                    return {
-                        title: fileName.replace('.md', ''),
-                        date: new Date(formatToDateString(this.extractDateFromFileName(fileName))),
-                        fileName: fileName
-                    };
-                });
+            const response = await fetch('/articles.json');
+            const articles = await response.json();
 
-            // ファイル名（日付）の降順でソート
-            files.sort((a, b) => new Date(b.date) - new Date(a.date));
+            // 日付の降順でソート
+            articles.sort((a, b) => new Date(b.date) - new Date(a.date));
 
-            this.render(files);
+            this.render(articles);
         } catch (error) {
           window.alert('記事の読み込みに失敗しました。');
           console.error('Error fetching articles:', error);
         }
-    }
-
-    extractDateFromFileName(fileName) {
-        // ファイル名から日付を抽出（例: 20240320.md）
-        const dateMatch = fileName.match(/^(\d{4}\d{2}\d{2})\./);
-        return dateMatch ? dateMatch[1] : null;
     }
 
     render(articles) {
@@ -99,4 +76,4 @@ class ArticleListComponent extends HTMLElement {
     }
 }
 
-customElements.define('article-list-component', ArticleListComponent); 
+customElements.define('article-list-component', ArticleListComponent);
