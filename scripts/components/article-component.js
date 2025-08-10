@@ -1,4 +1,7 @@
-import { markdown_to_html } from '../lib/markdown_parser.js';
+import init, { markdown_to_html } from '../lib/markdown_parser.js';
+
+// Start initializing the wasm module as soon as the script is loaded.
+const wasmInitialized = init();
 
 class ArticleComponent extends HTMLElement {
     constructor() {
@@ -40,6 +43,9 @@ class ArticleComponent extends HTMLElement {
             this.shadowRoot.innerHTML = '<p>記事が選択されていません。</p>';
             return;
         }
+
+        // Wait for the wasm module to be initialized before proceeding.
+        await wasmInitialized;
 
         const markdownContent = await this._fetchMarkdown();
 
