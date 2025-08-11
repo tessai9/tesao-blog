@@ -6,7 +6,7 @@ class ArticleListComponent extends HTMLElement {
 
     async connectedCallback() {
         try {
-            const response = await fetch('/articles.json');
+            const response = await fetch('/app/articles.json');
             const articles = await response.json();
 
             // 日付の降順でソート
