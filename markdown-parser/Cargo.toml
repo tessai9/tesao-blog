@@ -8,4 +8,7 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 pulldown-cmark = "0.13.0"
-wasm-bindgen = "0.2.100"
+wasm-bindgen = { version = "0.2.100", features = ["serde-serialize"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.9"
+chrono = { version = "0.4", features = ["serde"] }

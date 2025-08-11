@@ -51,7 +51,8 @@ class ArticleComponent extends HTMLElement {
 
         let htmlContent;
         try {
-            htmlContent = markdown_to_html(markdownContent);
+            const article = markdown_to_html(markdownContent);
+            htmlContent = article.html;
         } catch (error) {
             console.error('failed to convert markdown', error);
             htmlContent = '<p>記事の表示に失敗しました。</p>';

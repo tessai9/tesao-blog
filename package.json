@@ -1,0 +1,9 @@
+{
+  "name": "tesao-blog",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Blog generator with Rust-powered markdown parser",
+  "scripts": {
+    "generate": "node generate-articles-list.js"
+  }
+}

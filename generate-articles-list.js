@@ -1,42 +1,45 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import init, { markdown_to_html, initSync } from './scripts/lib/markdown_parser.js';
 
-const articlesDir = path.join(__dirname, 'articles'); // articlesディレクトリのパス
-const outputFilePath = path.join(__dirname, 'articles.json'); // 出力先のパス
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// YYYYMMdd -> YYYY-MM-dd に変換するヘルパー関数
-const formatToDateString = (yyyymmdd) => {
-    const year = yyyymmdd.substring(0, 4);
-    const month = yyyymmdd.substring(4, 6);
-    const day = yyyymmdd.substring(6, 8);
-    return `${year}-${month}-${day}`;
-};
+const articlesDir = path.join(__dirname, 'articles');
+const outputFilePath = path.join(__dirname, 'articles.json');
 
-try {
-    // articlesディレクトリ内のファイルを取得
-    const files = fs.readdirSync(articlesDir)
-        .filter(file => file.endsWith('.md'))
-        .map(fileName => {
-            const yyyymmdd = fileName.match(/^(\d{8})\.md$/)?.[1]; // YYYYMMdd形式の日付を抽出
-            const title = yyyymmdd; // タイトルは日付部分
+async function generate() {
+    // Initialize WASM module synchronously by reading the file
+    const wasmPath = path.join(__dirname, 'scripts', 'lib', 'markdown_parser_bg.wasm');
+    const wasmBuffer = fs.readFileSync(wasmPath);
+    initSync(wasmBuffer);
 
-            return {
-                title: title,
-                // ファイル名から日付を生成
-                date: new Date(formatToDateString(yyyymmdd)),
-                fileName: fileName
-            };
-        });
+    try {
+        const files = fs.readdirSync(articlesDir)
+            .filter(file => file.endsWith('.md'))
+            .map(fileName => {
+                const filePath = path.join(articlesDir, fileName);
+                const markdown = fs.readFileSync(filePath, 'utf-8');
+                const result = markdown_to_html(markdown);
+                const frontmatter = result.frontmatter;
 
-    // 日付の降順でソート
-    files.sort((a, b) => b.date - a.date);
+                return {
+                    title: frontmatter.Title,
+                    date: new Date(frontmatter.Date),
+                    fileName: fileName
+                };
+            });
 
-    // JSONファイルとして書き出し
-    fs.writeFileSync(outputFilePath, JSON.stringify(files, null, 2));
+        files.sort((a, b) => b.date - a.date);
 
-    console.log(`Successfully generated articles.json with ${files.length} articles.`);
+        fs.writeFileSync(outputFilePath, JSON.stringify(files, null, 2));
 
-} catch (error) {
-    console.error('Error generating articles list:', error);
-    process.exit(1);
+        console.log(`Successfully generated articles.json with ${files.length} articles.`);
+    } catch (error) {
+        console.error('Error generating articles list:', error);
+        process.exit(1);
+    }
 }
+
+generate();
