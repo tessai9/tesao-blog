@@ -90,7 +90,7 @@ class ArticleComponent extends HTMLElement {
                 code {
                     font-family: 'Consolas', 'Monaco', monospace;
                     background-color: #f8f9fa;
-                    padding: 0.2em 0.4em;
+                    padding: 0.2em 0em;
                     border-radius: 3px;
                 }
                 img {
