@@ -24,7 +24,7 @@ class ArticleComponent extends HTMLElement {
 
     async _fetchMarkdown() {
         try {
-            const response = await fetch(`/articles/${this._articlePath}`);
+            const response = await fetch(`/app/articles/${this._articlePath}`);
             if (!response.ok) {
                 if (response.status === 404) {
                     return '指定された記事が見つかりません。';
