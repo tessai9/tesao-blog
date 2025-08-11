@@ -6,12 +6,12 @@ import init, { markdown_to_html, initSync } from './scripts/lib/markdown_parser.
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const articlesDir = path.join(__dirname, 'articles');
-const outputFilePath = path.join(__dirname, 'articles.json');
+const articlesDir = path.join(__dirname, 'app', 'articles');
+const outputFilePath = path.join(__dirname, 'app', 'articles.json');
 
 async function generate() {
     // Initialize WASM module synchronously by reading the file
-    const wasmPath = path.join(__dirname, 'scripts', 'lib', 'markdown_parser_bg.wasm');
+    const wasmPath = path.join(__dirname, 'app', 'scripts', 'lib', 'markdown_parser_bg.wasm');
     const wasmBuffer = fs.readFileSync(wasmPath);
     initSync(wasmBuffer);
 
