@@ -3,7 +3,7 @@ use pulldown_cmark::{html, Parser};
 use serde::Deserialize;
 use wasm_bindgen::prelude::*;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, serde::Serialize)]
 struct Frontmatter {
     #[serde(rename = "Date")]
     date: NaiveDate,
@@ -15,8 +15,21 @@ struct Frontmatter {
 
 #[wasm_bindgen]
 pub struct MarkdownOutput {
-    pub frontmatter: JsValue,
-    pub html: String,
+    frontmatter: JsValue,
+    html: String,
+}
+
+#[wasm_bindgen]
+impl MarkdownOutput {
+    #[wasm_bindgen(getter)]
+    pub fn frontmatter(&self) -> JsValue {
+        self.frontmatter.clone()
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn html(&self) -> String {
+        self.html.clone()
+    }
 }
 
 #[wasm_bindgen]
