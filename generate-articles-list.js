@@ -1,12 +1,19 @@
-const fs = require('fs');
-const path = require('path');
-const { markdown_to_html, init } = require('./scripts/lib/markdown_parser.js');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import init, { markdown_to_html, initSync } from './scripts/lib/markdown_parser.js';
 
-const articlesDir = path.join(__dirname, '..', 'articles');
-const outputFilePath = path.join(__dirname, '..', 'articles.json');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const articlesDir = path.join(__dirname, 'articles');
+const outputFilePath = path.join(__dirname, 'articles.json');
 
 async function generate() {
-    await init();
+    // Initialize WASM module synchronously by reading the file
+    const wasmPath = path.join(__dirname, 'scripts', 'lib', 'markdown_parser_bg.wasm');
+    const wasmBuffer = fs.readFileSync(wasmPath);
+    initSync(wasmBuffer);
 
     try {
         const files = fs.readdirSync(articlesDir)
