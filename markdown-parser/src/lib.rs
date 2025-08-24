@@ -2,6 +2,7 @@ use chrono::NaiveDate;
 use pulldown_cmark::{html, Parser};
 use serde::Deserialize;
 use wasm_bindgen::prelude::*;
+use serde_wasm_bindgen;
 
 #[derive(Deserialize, Debug, serde::Serialize)]
 struct Frontmatter {
@@ -50,7 +51,8 @@ pub fn markdown_to_html(markdown: &str) -> Result<MarkdownOutput, JsValue> {
     let frontmatter_js = if let Some(frontmatter_str) = frontmatter {
         let parsed_frontmatter: Frontmatter = serde_yaml::from_str(frontmatter_str)
             .map_err(|e| JsValue::from_str(&e.to_string()))?;
-        JsValue::from_serde(&parsed_frontmatter).map_err(|e| JsValue::from_str(&e.to_string()))?
+        serde_wasm_bindgen::to_value(&parsed_frontmatter)
+            .map_err(|e| JsValue::from_str(&e.to_string()))?
     } else {
         JsValue::NULL
     };
