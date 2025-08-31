@@ -25,19 +25,18 @@ Threadの作成方法はいくつか想定しており、
 
 ## 設計
 
-フロントエンドはVanilla JavaScriptで実装する
-markdownへの変換は別途Rustで実装してwasmにコンパイルしたものを使用する
+### アプリケーション構成
 
-### データ構造と関連付け
+アプリケーションは基本的にVanilla JavaScriptのみで実装するが、
+markdownへの変換のみ別途Rustで実装してwasmにコンパイルしたものを使用する  
+なお、markdown parserの設計については`markdown-parser/design.md`に記載している
 
-ArticleとThreadの関連付けは、ArticleのMarkdownファイルにメタデータを記述する方法で行う。
-
-#### ディレクトリ構成
+### ディレクトリ構成
 
 ```
 .
 ├── articles/
-│   └── 2025-07-20-my-first-post.md
+│   └── 20250720.md
 ├── threads/
 │   └── thread-a8b4c1.json
 │   └── thread-d9e7f2.json
@@ -50,18 +49,29 @@ ArticleとThreadの関連付けは、ArticleのMarkdownファイルにメタデ�
 - `articles/`: ArticleのMarkdownファイルを格納する。
 - `threads/`: ThreadのJSONファイルを格納する。
 
-#### ArticleのMarkdownファイル
+### Article
 
-ファイルの先頭に`---`で囲んだYAML形式のフロントマターを記述し、関連するThreadのIDを管理する。
+ArticleはMarkdown形式で記載する  
+ファイル名は任意の名前をつけることができる
 
-**例: `articles/2025-07-20-my-first-post.md`**
+Frontmatterに対応しており、ファイルの先頭に`---`で囲んだエリアにYAML形式で記述する  
+対応しているパラメータは以下の通り
+- Date
+  - YYYY-mm-dd
+- Title
+  - string
+- Tags
+  - list of string
+
+**例: `articles/20250720.md`**
 '''markdown
 ---
-title: "初めての投稿"
-date: "2025-07-20"
-threads:
-  - "thread-a8b4c1"
-  - "thread-d9e7f2"
+Date: 2025-07-20
+Title: 初めての投稿
+Tags:
+  - tagA
+  - tagB
+  - tagC
 ---
 
 # これはArticleの本文です
@@ -70,29 +80,5 @@ threads:
 ...
 '''
 
-#### ThreadのJSONファイル
+### Thread
 
-各Threadは個別のJSONファイルとして管理し、ユニークなIDを持つ。
-
-**例: `threads/thread-a8b4c1.json`**
-'''json
-{
-  "id": "thread-a8b4c1",
-  "posts": [
-    {
-      "post_id": "post-001",
-      "author": "sumiyoshi",
-      "content": "この記事から派生したThreadの最初の投稿です。",
-      "timestamp": "2025-07-20T10:00:00Z"
-    },
-    {
-      "post_id": "post-002",
-      "author": "sumiyoshi",
-      "content": "これは2つ目の返信です。",
-      "timestamp": "2025-07-20T10:05:00Z"
-    }
-  ]
-}
-'''
-
-`posts`配列の最初の要素が、Articleページに表示されるプレビュー対象となる。
