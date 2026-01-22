@@ -1,4 +1,5 @@
 import init, { markdown_to_html } from '../lib/markdown_parser.js';
+import './share-button-component.js';
 
 // Start initializing the wasm module as soon as the script is loaded.
 const wasmInitialized = init();
@@ -50,13 +51,23 @@ class ArticleComponent extends HTMLElement {
         const markdownContent = await this._fetchMarkdown();
 
         let htmlContent;
+        let articleTitle = '';
         try {
             const article = markdown_to_html(markdownContent);
             htmlContent = article.html;
+            if (article.frontmatter && article.frontmatter.Title) {
+                document.title = article.frontmatter.Title;
+            }
         } catch (error) {
             console.error('failed to convert markdown', error);
             htmlContent = '<p>記事の表示に失敗しました。</p>';
         }
+
+        const escapedTitle = articleTitle
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
 
         this.shadowRoot.innerHTML = `
             <style>
@@ -104,11 +115,20 @@ class ArticleComponent extends HTMLElement {
                     padding-left: 1rem;
                     color: #666;
                 }
+                .menu-container {
+                    margin: 1rem 0;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.5rem;
+                }
             </style>
+            <div class="menu-container">
+                <share-button-component title="${escapedTitle}"></share-button-component>
+                <a href="/">記事一覧に戻る</a>
+            </div>
             <article>
                 ${htmlContent}
             </article>
-            <a href="/">記事一覧に戻る</a>
         `;
     }
 }
