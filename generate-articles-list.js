@@ -13,7 +13,7 @@ async function generate() {
     // Initialize WASM module synchronously by reading the file
   const wasmPath = path.join(__dirname, 'markdown-parser', 'pkg', 'markdown_parser_bg.wasm');
     const wasmBuffer = fs.readFileSync(wasmPath);
-    initSync(wasmBuffer);
+    initSync({ module: wasmBuffer });
 
     try {
         const files = fs.readdirSync(articlesDir)
