@@ -1,0 +1,39 @@
+name: Build articles
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "app/articles/**"
+      - "markdown-parser/**"
+      - "generate-articles-list.js"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install wasm-pack
+        run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build markdown parser (wasm)
+        run: ./build-parser.sh
+
+      - name: Generate articles.json
+        run: node generate-articles-list.js
+
+      - name: Commit generated files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add app/articles.json app/scripts/lib
+          git diff --cached --quiet || git commit -m "build: regenerate articles.json and wasm parser"
+          git push

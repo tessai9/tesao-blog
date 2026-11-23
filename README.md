@@ -11,19 +11,14 @@
 
 # Deploy
 
-## before you start
+Push the markdown file to `master` and GitHub Actions takes care of the rest
+(building the Rust/wasm markdown parser and regenerating `app/articles.json`).
 
-- Install node
+```shell
+$ git add app/articles/yyyymmdd.md
+$ git commit -m 'articles/yyyymmdd'
+$ git push origin master
+```
 
-## How to deploy
-
-1. Run generating json command.
-  ```shell
-  $ node generate-articles-list.js
-  ```
-1. Push to repository.
-  ```shell
-  $ git add .
-  $ git commit -m 'articles/yyyymmdd'
-  $ git push origin master
-  ```
+Note: only commit articles you want published — drafts should stay
+uncommitted until ready.
